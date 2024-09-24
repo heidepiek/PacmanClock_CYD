@@ -17,12 +17,12 @@
               NOTE: Add the following 'include' to XT_DAC_Audio.cpp at line 27
                   #include "soc/rtc_io_reg.h"
         7. Supports display dimming using the on-board LDR (see hardware changes).
-		8. Make sure the TFT_eSPI setup file selects the correct controller type (ILI9341_2_Driver)
-				and the pin definitions are correct. See example User_Setup file CYD.h
-		8. Recommended hardware changes:
-			A. Replace R15 1.0M resistor with a 10K resistor. Otherwise LDR will not work.
-			B. Verify the following resistors for the audio are correct, if not, replace.
-				R4 - 4.7K
-				R7 - 47K
-				R8 - 22K
-				R9 - 68K
+	8. Make sure the TFT_eSPI setup file selects the correct controller type (ILI9341_2_Driver)
+		and the pin definitions are correct. See example User_Setup file CYD.h
+	9. Recommended hardware changes:
+		A. Replace R15 1.0M resistor with a 10K resistor. Otherwise LDR will not work.
+		B. Verify the following resistors for the audio are correct, if not, replace.
+			R4 - 4.7K
+			R7 - 47K
+			R8 - 22K
+			R9 - 68K
