@@ -105,7 +105,7 @@ bool ntpConnect(void)
     setTime((time_t)getNtpTime());
     //Serial.println("NTP sync provider");
     setSyncProvider(getNtpTime);
-    setSyncInterval(60 * 10);  // 3600 seconds (1 hour)
+    setSyncInterval(60 * 60);  // 3600 seconds (1 hour)
     return(true);
   }
   else return(false);

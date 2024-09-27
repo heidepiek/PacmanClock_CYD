@@ -819,7 +819,7 @@ void setup()
       setTime((time_t)getDS3231_Time());
       Serial.println("DS3231 sync provider");
       setSyncProvider(getDS3231_Time);
-      setSyncInterval(60 * 10);  // 3600 seconds (1 hour)
+      setSyncInterval(60 * 60);  // 3600 seconds (1 hour)
     }
   }
   else    // No DS3231 RTC

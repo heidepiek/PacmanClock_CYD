@@ -11,8 +11,8 @@
         3. Compile with Arduino Sketch IDE version 1.8.19.
         4. ESP Board Manager - select ESP32 version 2.0.17.
               NOTE: Don't try to use newer versions (3.0.x or newer)
-        5. Supports DS3231 RTC if connected, otherwise it uses NTP.
-              NOTE: DS3231 uses GPIO 22 (SCL) & 27 (SDA). (Use connector CN1) 
+        5. Supports DS3231 RTC if connected (optional), otherwise it uses NTP.
+              NOTE: DS3231 uses GPIO 22 (SCL) & 27 (SDA). CYD connector CN1. 
         6. Uses XT_DAC_Audio library Version 4.2.1.
               NOTE: Add the following 'include' to XT_DAC_Audio.cpp at line 27
                   #include "soc/rtc_io_reg.h"
