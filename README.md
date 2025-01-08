@@ -15,6 +15,8 @@ Extensively modified by Gerald Maurer Sept. 2024  --  Version 3.1
 		* #include "soc/rtc_io_reg.h"
 * Make sure the TFT_eSPI setup file selects the correct controller type (ILI9341_2_Driver)
 		and the pin definitions are correct. See example User_Setup file CYD.h
+* Don't forget to initialize SPIFFS using Arduino IDE "Tools/ESP32 Sketch Data Upload"
+ 	 (which will initializee SPIFFS and upload all the files from the Data directory).
 ## Modifications:
 * Modified touch routine to use XPT2046 library.
 * Modified ESP32 pin definitions as needed for CYD board.
