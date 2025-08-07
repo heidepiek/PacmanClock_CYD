@@ -108,6 +108,16 @@ TwoWire myI2C = TwoWire(0);
 #define SCREEN_HEIGHT 240
 #define SCREEN_ROTATION 1   // 1 or 3 for Landscape
 
+
+
+//////////////////////////////////////////////////////////
+
+bool colonVisible = true;                                           // Variabele die bijhoudt of de dubbele punt (:) zichtbaar is of niet
+unsigned long lastToggle = 0;                                       // Houdt de tijd (in milliseconden) bij van de laatste keer dat de dubbele punt werd omgeschakeld
+const unsigned long toggleInterval = 1000;                          // Interval voor het omschakelen van de dubbele punt — elke 1000 ms (1 seconde)
+
+//////////////////////////////////////////////////////////
+
 //
 //  ESP32 pin definitions
 //
@@ -585,6 +595,56 @@ int curWavLoaded = WAV_NULL;
 int audioState = AUDIO_IDLE;
 
 
+//////////////////////////////////////////////////////////
+
+// Tekent een Pac-Man-figuur op de opgegeven positie en grootte
+void drawPacman2(int x, int y, int size) {
+  // Hoofd - geel rondje
+  tft.fillCircle(x, y, size, TFT_YELLOW);
+
+  // Mond - zwarte driehoek (happende mond)
+  tft.fillTriangle(x, y, x + size, y - size / 2, x + size, y + size / 2, TFT_BLACK);
+
+  // Oog - wit rondje
+  int eyeX = x - size / 3;
+  int eyeY = y - size / 3;
+  int eyeRadius = size / 5;
+  tft.fillCircle(eyeX, eyeY, eyeRadius, TFT_WHITE);
+
+  // Pupil - zwart rondje in oog
+  tft.fillCircle(eyeX, eyeY, eyeRadius / 2, TFT_BLACK);
+}
+
+// Tekent een spook (zoals uit Pac-Man) op de opgegeven positie en grootte
+void drawGhost(int x, int y, int size) {
+  // Hoofd - halve cirkel
+  tft.fillCircle(x, y, size, TFT_RED);
+
+  // Lichaam - rechthoek onder het hoofd
+  tft.fillRect(x - size, y, size * 2, size * 1.5, TFT_RED);
+
+  // Onderkant - zigzagpatroon (de "spookstaart")
+  int zigzagHeight = size / 3;
+  for (int i = -size; i < size; i += zigzagHeight) {
+    tft.fillTriangle(
+      x + i, y + size * 1.5,
+      x + i + zigzagHeight / 2, y + size * 1.5 + zigzagHeight,
+      x + i + zigzagHeight, y + size * 1.5,
+      TFT_RED
+    );
+  }
+
+  // Ogen - twee witte cirkels
+  int eyeRadius = size / 4;
+  int eyeY = y - size / 3;
+  tft.fillCircle(x - size / 2, eyeY, eyeRadius, TFT_WHITE);
+  tft.fillCircle(x + size / 2, eyeY, eyeRadius, TFT_WHITE);
+
+  // Pupillen - zwarte cirkels in de ogen
+  int pupilRadius = eyeRadius / 2;
+  tft.fillCircle(x - size / 2, eyeY, pupilRadius, TFT_BLACK);
+  tft.fillCircle(x + size / 2, eyeY, pupilRadius, TFT_BLACK);
+}
 
 //////////////////////////////////////////////////////////
 //
@@ -862,6 +922,22 @@ void setup()
 //      Main Loop
 //
 void loop() {
+
+
+//////////////////////////////////////////////////////////
+
+// Controleer of het tijd is om de dubbele punt te toggelen
+unsigned long currentMillis = millis();  // huidige tijd in milliseconden
+
+if (currentMillis - lastToggle >= toggleInterval) {
+  colonVisible = !colonVisible;  // toggle zichtbaarheid dubbele punt (aan/uit)
+  lastToggle = currentMillis;    // update laatste toggle-tijd
+  UpdateDisp();                  // update het display om de wijziging te tonen
+}
+
+//////////////////////////////////////////////////////////
+
+
   audioPlayer();  // check to see if anything is playing
 
   setGameSpeed();  // Set game animation speed
@@ -3060,7 +3136,31 @@ void displayGhost() {  // Draw Ghost in position on screen
   }
 }
 
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Tekent de dubbele punt (:) tussen uren en minuten op de klok
+// Als 'colonVisible' true is, worden de puntjes zichtbaar getekend
+// De kleur verandert naar rood als het alarm is ingeschakeld
+
+void drawColon(bool is24Hour) {
+  int x = is24Hour ? 156 : 156;                // Kolonpositie (vooruitgedacht op mogelijke aanpassing 12/24h)
+  int y1 = 112;                                // Y-positie van bovenste stip
+  int y2 = 132;                                // Y-positie van onderste stip
+  int r = 4;                                   // Straal van de stippen
+
+  // Wissen van eerdere stippen (overschrijven met zwart)
+  tft.fillCircle(x, y1, r, TFT_BLACK);         // Wissen bovenste stip
+  tft.fillCircle(x, y2, r, TFT_BLACK);         // Wissen onderste stip
+
+  if (colonVisible) {
+    uint16_t dotColor = (clockConfig.alarmStatus == ALARM_ENABLED) ? TFT_RED : TFT_WHITE;  // Rood bij alarm aan, anders wit
+
+    tft.fillCircle(x, y1, r, dotColor);        // Teken bovenste stip
+    tft.fillCircle(x, y2, r, dotColor);        // Teken onderste stip
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Update Time Display
 //
@@ -3151,12 +3251,12 @@ void UpdateDisp() {
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.setTextSize(2);  // Text size multiplier
   //tft.setFreeFont(FF20);
-  setGfxFont(FF20);
+  setGfxFont(FF18);
 
 
   // First Digit
   if (((d1 != c1) || (xsetup == true)) && (d1 != 0)) {  // Do not print zero in first digit position
-    tft.drawNumber(d1, 51, 85);                      // Printing thisnumber impacts LFH walls so redraw impacted area
+    tft.drawNumber(d1, 95, 103);                      // Printing thisnumber impacts LFH walls so redraw impacted area
     // ---------------- reprint two left wall pillars
     //    tft.setColor(1, 73, 240);
 
@@ -3204,17 +3304,17 @@ void UpdateDisp() {
   {
     // Second Digit - Hour ones digit
     if ((d2 != c2) || (xsetup == true)) {
-      tft.drawNumber(d2, 91, 85);  // Print 0
+      tft.drawNumber(d2, 119, 103);  // Print 0
     }
 
     // Third Digit - Minute tens digit
     if ((d3 != c3) || (xsetup == true)) {
-      tft.drawNumber(d3, 156, 85);  // Was 145
+      tft.drawNumber(d3, 164, 103);  // Was 145
     }
 
     // Fourth Digit - Minute ones digit
     if ((d4 != c4) || (xsetup == true)) {
-      tft.drawNumber(d4, 211, 85);  // Was 205
+      tft.drawNumber(d4, 190, 103);  // Was 205
     }
 
     if (xsetup == true) {
@@ -3223,6 +3323,7 @@ void UpdateDisp() {
     // Print PM or AM
 
     popTA();  // Pop Text Attributes from stack
+    drawColon(clockConfig.clock24);
 
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
     tft.setTextSize(1);  // Text size multiplier
@@ -3235,46 +3336,33 @@ void UpdateDisp() {
     } else {
       tft.drawString("PM", 300, 148);
     }
-    // Round dots (Colon between hour and minute)
-    if (clockConfig.alarmStatus == ALARM_ENABLED) {
-      tft.fillCircle(148, 112, 4, TFT_RED);
-      tft.fillCircle(148, 132, 4, TFT_RED);
-    } else {
-      tft.fillCircle(148, 112, 4, TFT_WHITE);
-      tft.fillCircle(148, 132, 4, TFT_WHITE);
-    }
+    
   } else  // 24 hour clock display
   {
     // Second Digit - Hour ones digit
     if ((d2 != c2) || (xsetup == true)) {
-      tft.drawNumber(d2, 99, 85);  // 91, Print 0
+      tft.drawNumber(d2, 119, 103);  // 91, Print 0
     }
 
     // Third Digit - Minute tens digit
     if ((d3 != c3) || (xsetup == true)) {
-      tft.drawNumber(d3, 163, 85);  // 156, Was 145
+      tft.drawNumber(d3, 164, 103);  // 156, Was 145
     }
 
     // Fourth Digit - Minute ones digit
     if ((d4 != c4) || (xsetup == true)) {
-      tft.drawNumber(d4, 215, 85);  // 211, Was 205
+      tft.drawNumber(d4, 190, 103);  // 211, Was 205
     }
 
     if (xsetup == true) {
       xsetup = false;  // Reset Flag now leaving setup mode
     }
     popTA();  // Pop Text Attributes from stack
+    drawColon(clockConfig.clock24);
 
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
     tft.setTextSize(1);  // Text size multiplier
-    // Round dots (Colon between hour and minute)
-    if (clockConfig.alarmStatus == ALARM_ENABLED) {
-      tft.fillCircle(156, 112, 4, TFT_RED);
-      tft.fillCircle(156, 132, 4, TFT_RED);
-    } else {
-      tft.fillCircle(156, 112, 4, TFT_WHITE);
-      tft.fillCircle(156, 132, 4, TFT_WHITE);
-    }
+    
   }
 
   // ----------- Alarm Set on LHS lower pillar
@@ -3298,6 +3386,38 @@ void UpdateDisp() {
   c2 = d2;
   c3 = d3;
   c4 = d4;
+
+////////////////////////////////////////////////////////////////
+
+// Teken een rechthoek om de tijd (vier cijfers)
+// Bepaalde marge toegevoegd voor mooiere stijl
+tft.drawRoundRect(62, 80, 194, 82, 5, TFT_BLUE);   // x, y, breedte, hoogte, radius, kleur – binnenste (kleinere) rand
+tft.drawRoundRect(59, 77, 200, 88, 5, TFT_BLUE);   // x, y, breedte, hoogte, radius, kleur – buitenste (grotere) rand
+
+////////////////////////////////////////////////////////////////
+
+// =================== Datum en tekst onder de klok ======================
+
+struct tm timeinfo;                                                        // Struct met tijdgegevens
+if (getLocalTime(&timeinfo)) {                                             // Haal lokale tijd op
+  const char* daysOfWeek[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};  // Dagen van de week
+
+  char dateStr[30];                                                        // Buffer voor datumtekst
+  sprintf(dateStr, "%s %02d-%02d-%04d",                                    // Formatteer datum als: Dag DD-MM-JJJJ
+          daysOfWeek[timeinfo.tm_wday], timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+
+  tft.setTextSize(2);                                                      // Tekstgrootte voor datum
+  tft.setTextColor(TFT_GREEN, TFT_BLACK);                                  // Groen op zwarte achtergrond
+  tft.drawString(dateStr, 74, 86);                                         // Teken datumstring op scherm
+
+  tft.setTextSize(1);                                                      // Kleinere tekstgrootte voor ondertekst
+  tft.setTextColor(TFT_MAGENTA, TFT_BLACK);                                // Magenta op zwart
+  tft.drawString("esp32 pacman clock", 101, 150);                          // Ondertekst onder klok
+
+  drawPacman2(80, 143, 10);                                                // Teken Pac-Man links van tekst
+  drawGhost(235, 135, 10);                                                 // Teken spookje rechts van Pac-Man
+}
+
 }
 
 
