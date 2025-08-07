@@ -14,7 +14,6 @@ Pacman Clock source code for CYD - ESP32 Cheap Yellow Display.
 Extensively modified by **Gerald Maurer** – Sept. 2024 — Version **3.1**  
 Adapted to support **ESP32-2432S028** (CYD – Cheap Yellow Display)
 
-Further personalized and enhanced by **[Your Name or GitHub Username]** – Aug. 2025 — Version **3.2 (Fun Fork)**
 
 ---
 
