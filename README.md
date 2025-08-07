@@ -1,6 +1,6 @@
 
 
-[PacmanClock_CYD](./images/cyd_pacmanclock.gif)
+![PacmanClock_CYD](./images/cyd_pacmanclock.gif)
 
 
 
