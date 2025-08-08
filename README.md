@@ -1,8 +1,4 @@
-
-
 ![PacmanClock_CYD](./images/cyd_pacmanclock.gif)
-
-
 
 # PacmanClock_CYD  
 Pacman Clock source code for CYD - ESP32 Cheap Yellow Display.
@@ -47,7 +43,7 @@ Further personalized and enhanced by **heidepiek**
 
 ---
 
-## 🔄 Personal Enhancements (Fork by [Your Name], Aug. 2025)
+## 🔄 Personal Enhancements (Fork by heidepiek, Aug. 2025)
 
 This fork adds several **visual** and **functional** upgrades, just for fun and customization:
 
@@ -67,14 +63,27 @@ To get a **working Pacman Clock** running immediately on your CYD board, use the
 ### `altered_ESP32_Pacman_Clock_CYD_V3_1-flash.bat`
 
 What it does:
-1. Prompts you to select the correct **COM port** for your CYD board
+1. Prompts you to select the correct **COM port** for your CYD board  
 2. Automatically uploads:
    - The **precompiled .ino firmware**
    - The **SPIFFS data** (graphics, fonts, etc.)
 3. No need to install libraries or open Arduino IDE — just double-click and go!
 
-> ⚠️ Requires a Windows system and ESP32 USB drivers  
-> Ideal for users who just want a **plug-and-play working clock**
+> ⚠️ **Requirement**: `esptool` must be installed and available globally  
+> Install it with:
+>
+> ```bash
+> pip install esptool
+> ```
+>
+> Or check if it's already available using:
+>
+> ```bash
+> where esptool.exe
+> ```
+
+✅ Ideal for users who want a **plug-and-play working clock**  
+🧰 Advanced users can modify the batch file as needed
 
 ---
 
